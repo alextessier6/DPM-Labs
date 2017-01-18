@@ -9,11 +9,15 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Odometer extends Thread {
 	// robot position
 	private double x, y, theta;
-	private int leftMotorTachoCount, rightMotorTachoCount;
+//	private int leftMotorTachoCount, rightMotorTachoCount;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	// odometer update period, in ms
 	private static final long ODOMETER_PERIOD = 25;
-
+	private int LTachoLast, RTachoLast, LTachoNow, RTachoNow;
+	private double distL, distR, deltaDist, deltaTheta, dx, dy;
+	private static double Wheel_Radius=2.1;
+	private static double Wheel_Base=15.1;
+	
 	// lock object for mutual exclusion
 	private Object lock;
 
@@ -21,30 +25,54 @@ public class Odometer extends Thread {
 	public Odometer(EV3LargeRegulatedMotor leftMotor,EV3LargeRegulatedMotor rightMotor) {
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
-		this.x = 0.0;
-		this.y = 0.0;
-		this.theta = 0.0;
-		this.leftMotorTachoCount = 0;
-		this.rightMotorTachoCount = 0;
+		x = 0.0;
+		y = 0.0;
+		theta = 0.0;
 		lock = new Object();
+		
+//		leftMotorTachoCount = 0;
+//		rightMotorTachoCount = 0;
+		
+		LTachoLast=0;
+		RTachoLast=0;
+		LTachoNow=0;
+		RTachoNow=0;
+		
 	}
 
 	// run method (required for Thread)
 	public void run() {
 		long updateStart, updateEnd;
 
+	
+		
 		while (true) {
 			updateStart = System.currentTimeMillis();
-			//TODO put (some of) your odometer code here
+			
+			LTachoNow=leftMotor.getTachoCount();
+			RTachoNow=rightMotor.getTachoCount();
+			
+//			rightMotorTachoCount=leftMotor.getTachoCount();
+//			leftMotorTachoCount=rightMotor.getTachoCount();
+			
+			distL= Math.PI*Wheel_Radius*(LTachoNow-LTachoLast)/180;
+			distR= Math.PI*Wheel_Radius*(RTachoNow-RTachoLast)/180;
+		
+			LTachoLast=LTachoNow;
+			RTachoLast=RTachoNow;
+			
+			deltaDist=0.5*(distL+distR);
+			deltaTheta=(distL-distR)/Wheel_Base;
 
 			synchronized (lock) {
-				/**
-				 * Don't use the variables x, y, or theta anywhere but here!
-				 * Only update the values of x, y, and theta in this block. 
-				 * Do not perform complex math
-				 * 
-				 */
-				theta = -0.7376; //TODO replace example value
+				
+				theta += deltaTheta;
+				
+				dx = deltaDist * Math.sin(theta);
+				dy = deltaDist * Math.cos(theta);
+				
+				x += dx;
+				y += dy;
 			}
 
 			// this ensures that the odometer only runs once every period
@@ -135,35 +163,35 @@ public class Odometer extends Thread {
 		}
 	}
 
-	/**
-	 * @return the leftMotorTachoCount
-	 */
-	public int getLeftMotorTachoCount() {
-		return leftMotorTachoCount;
-	}
-
-	/**
-	 * @param leftMotorTachoCount the leftMotorTachoCount to set
-	 */
-	public void setLeftMotorTachoCount(int leftMotorTachoCount) {
-		synchronized (lock) {
-			this.leftMotorTachoCount = leftMotorTachoCount;	
-		}
-	}
-
-	/**
-	 * @return the rightMotorTachoCount
-	 */
-	public int getRightMotorTachoCount() {
-		return rightMotorTachoCount;
-	}
-
-	/**
-	 * @param rightMotorTachoCount the rightMotorTachoCount to set
-	 */
-	public void setRightMotorTachoCount(int rightMotorTachoCount) {
-		synchronized (lock) {
-			this.rightMotorTachoCount = rightMotorTachoCount;	
-		}
-	}
+//	/**
+//	 * @return the leftMotorTachoCount
+//	 */
+//	public int getLeftMotorTachoCount() {
+//		return leftMotorTachoCount;
+//	}
+//
+//	/**
+//	 * @param leftMotorTachoCount the leftMotorTachoCount to set
+//	 */
+//	public void setLeftMotorTachoCount(int leftMotorTachoCount) {
+//		synchronized (lock) {
+//			this.leftMotorTachoCount = leftMotorTachoCount;	
+//		}
+//	}
+//
+//	/**
+//	 * @return the rightMotorTachoCount
+//	 */
+//	public int getRightMotorTachoCount() {
+//		return rightMotorTachoCount;
+//	}
+//
+//	/**
+//	 * @param rightMotorTachoCount the rightMotorTachoCount to set
+//	 */
+//	public void setRightMotorTachoCount(int rightMotorTachoCount) {
+//		synchronized (lock) {
+//			this.rightMotorTachoCount = rightMotorTachoCount;	
+//		}
+//	}
 }
