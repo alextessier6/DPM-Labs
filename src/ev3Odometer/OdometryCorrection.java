@@ -20,7 +20,7 @@ public class OdometryCorrection extends Thread {
 			correctionStart = System.currentTimeMillis();
 
 			// put your correction code here
-
+			
 			// this ensure the odometry correction occurs only once every period
 			correctionEnd = System.currentTimeMillis();
 			if (correctionEnd - correctionStart < CORRECTION_PERIOD) {
