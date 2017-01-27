@@ -10,13 +10,14 @@ import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
-
+import lejos.robotics.SampleProvider;
 
 
 public class Lab3 {
 	
 	// Get port S1 used for the Ultrasonic Sensor
-//	private static final Port usPort = LocalEV3.get().getPort("S1");
+	private static final Port usPort = LocalEV3.get().getPort("S1"); 		
+	private static final EV3UltrasonicSensor usSensor = new EV3UltrasonicSensor(usPort);
 
 	// Static Resources:
 	// Left motor connected to output A
@@ -65,14 +66,16 @@ public class Lab3 {
 			Navigator.travelTo(30,60);
 			Navigator.travelTo(60,0);
 			
-		} if (buttonChoice == Button.ID_LEFT) {
-			// start the odometer, the odometry display and (possibly) the
-			// odometry correction
-				
-//			ObstacleAvoidance.start();
+		} if (buttonChoice == Button.ID_LEFT) {			
+
+			ObstacleAvoidance avoid = new ObstacleAvoidance(odometer, usSensor, leftMotor, rightMotor, Navigator);
+			
+			
+			avoid.start();
+		
 			odometer.start();
 			odometryDisplay.start();
-			Navigator.start();
+//			Navigator.start();
 			Navigator.travelTo(0,60);
 			Navigator.travelTo(60,0);
 
