@@ -53,8 +53,11 @@ public class Driver extends Thread {
 		double displacementY = y2-y1;
 		
 		//Calculates the angle the robot needs to head at
-		if(displacementX>0)
+		if(displacementX>0 && displacementY>0)
 			newTheta = Math.atan(displacementX/displacementY);
+		
+		else if(displacementX>0 && displacementY<0)
+			newTheta = Math.atan(displacementX/displacementY)+Math.PI;
 		
 		else if (displacementX<0 && displacementY>0)
 			newTheta = Math.atan(displacementX/displacementY)-Math.PI;
