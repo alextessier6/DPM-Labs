@@ -8,12 +8,16 @@ import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
+import lejos.hardware.sensor.SensorModes;
+
+
 
 public class Lab3 {
 	
 	// Get port S1 used for the Ultrasonic Sensor
-	private static final Port usPort = LocalEV3.get().getPort("S1");
-	
+//	private static final Port usPort = LocalEV3.get().getPort("S1");
+
 	// Static Resources:
 	// Left motor connected to output A
 	// Right motor connected to output D
@@ -31,6 +35,8 @@ public class Lab3 {
 		
 		final TextLCD t = LocalEV3.get().getTextLCD();
 		Odometer odometer = new Odometer(leftMotor, rightMotor);
+		Driver Navigator = new Driver(odometer, leftMotor, rightMotor);
+//		ObstacleAvoidance Avoider = new ObstacleAvoidance();
 		OdometryDisplay odometryDisplay = new OdometryDisplay(odometer,t);
 		
 		do {
@@ -48,34 +54,34 @@ public class Lab3 {
 		} while (buttonChoice != Button.ID_LEFT
 				&& buttonChoice != Button.ID_RIGHT);
 
-		if (buttonChoice == Button.ID_LEFT) {
+		if (buttonChoice == Button.ID_RIGHT) {
 			
-			ObstacleAvoidance();
 			odometer.start();
 			odometryDisplay.start();
+			Navigator.start();
 			
-			Driver.travelTo(60,30);
-			Driver.travelTo(30,30);
-			Driver.travelTo(30,60);
-			Driver.travelTo(60,0);
+			Navigator.travelTo(60,30);
+			Navigator.travelTo(30,30);
+			Navigator.travelTo(30,60);
+			Navigator.travelTo(60,0);
 			
-			
-		} else {
+		} if (buttonChoice == Button.ID_LEFT) {
 			// start the odometer, the odometry display and (possibly) the
 			// odometry correction
-			
+				
+//			ObstacleAvoidance.start();
 			odometer.start();
 			odometryDisplay.start();
-			
-			Driver.travelTo(0,60);
-			Driver.travelTo(60,0);
+			Navigator.start();
+			Navigator.travelTo(0,60);
+			Navigator.travelTo(60,0);
 
-			// spawn a new Thread to avoid SquareDriver.drive() from blocking
-			(new Thread() {
-				public void run() {
-					Driver.drive(leftMotor, rightMotor, WHEEL_RADIUS, WHEEL_RADIUS, TRACK);
-				}
-			}).start();
+			// spawn a new Thread to avoid Driver.drive() from blocking
+//			(new Thread() {
+//				public void run() {
+//					Navigator.drive(leftMotor, rightMotor, WHEEL_RADIUS, WHEEL_RADIUS, TRACK);
+//				}
+//			}).start();
 		}
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);

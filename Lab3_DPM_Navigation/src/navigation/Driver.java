@@ -5,46 +5,36 @@ package navigation;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
-public class Driver {
+public class Driver extends Thread {
 	private static final int FORWARD_SPEED = 250;
 	private static final int ROTATE_SPEED = 150;
 	public EV3LargeRegulatedMotor leftMotor;
 	public EV3LargeRegulatedMotor rightMotor;
+	public Odometer odometer;
+	boolean navigating;
 	
 	public static double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 14.2;
 	
-	public static void drive(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-			double leftRadius, double rightRadius, double width) {
-		// reset the motors
-		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
-			motor.stop();
-			motor.setAcceleration(3000);
-		}
-
-		// wait 5 seconds
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// there is nothing to be done here because it is not expected that
-			// the odometer will be interrupted by another thread
-		}
-
-		for (int i = 0; i < 4; i++) {
-			// drive forward two tiles
+	public Driver(Odometer odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor){
+		this.odometer =  odometer;
+		this.leftMotor=leftMotor;
+		this.rightMotor=rightMotor;
+		navigating = false;
+	}
+	
+	
+	public void drive (double travelDist) {
+		
 			leftMotor.setSpeed(FORWARD_SPEED);
 			rightMotor.setSpeed(FORWARD_SPEED);
+			
+			navigating = true;
 
-			leftMotor.rotate(convertDistance(leftRadius, 91.44), true);
-			rightMotor.rotate(convertDistance(rightRadius, 91.44), false);
+			leftMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), true);
+			rightMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), false);
 
-			// turn 90 degrees clockwise
-			leftMotor.setSpeed(ROTATE_SPEED);
-			rightMotor.setSpeed(ROTATE_SPEED);
-
-			leftMotor.rotate(convertAngle(leftRadius, width, 90.0), true);
-			rightMotor.rotate(-convertAngle(rightRadius, width, 90.0), false);
-		}
+			navigating = false;
 	}
 
 	private static int convertDistance(double radius, double distance) {
@@ -64,13 +54,13 @@ public class Driver {
 		
 		//Calculates the angle the robot needs to head at
 		if(displacementX>0)
-			newTheta = Math.atan(displacementY/displacementX);
+			newTheta = Math.atan(displacementX/displacementY);
 		
 		else if (displacementX<0 && displacementY>0)
-			newTheta = Math.atan(displacementY/displacementX)+Math.PI;
+			newTheta = Math.atan(displacementX/displacementY)-Math.PI;
 		
 		else if (displacementX<0 && displacementY<0)
-			newTheta = Math.atan(displacementY/displacementX)-Math.PI;
+			newTheta = Math.atan(displacementX/displacementY)+Math.PI;
 			
 		deltaTheta = newTheta-currentTheta;
 		
@@ -81,7 +71,7 @@ public class Driver {
 		else if (deltaTheta<-Math.PI)
 			return deltaTheta+(2*Math.PI);
 		
-		else if (deltaTheta>180)
+		else if (deltaTheta>Math.PI)
 			return deltaTheta-(2*Math.PI);
 		
 		else
@@ -89,7 +79,20 @@ public class Driver {
 	}
 	
 	
-	public void travelTo (double x, double y){
+	public void travelTo (double x2, double y2){
+		double[] position = new double[3];
+		odometer.getPosition(position);
+		double x1 = position[0];
+		double y1 = position[1];
+		double currentTheta = position[2];
+		
+		double deltaX = x1-x2;
+		double deltaY = y1-y2;
+		double turnTheta = calculateTheta(x1, x2, y1, y2,currentTheta);
+		double travelDist = Math.sqrt(Math.pow(deltaX,2)+Math.pow(deltaY,2));
+		
+		turnTo(turnTheta);
+		drive (travelDist);
 		
 	}
 	
@@ -97,10 +100,11 @@ public class Driver {
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 
-		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, theta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, theta), false);
+		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), true);
+		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), false);
 	}
 	
-	
-	
+	boolean isNavigating(){
+		return navigating;
+	}
 }

@@ -34,19 +34,20 @@ public class OdometryDisplay extends Thread {
 			t.drawString("T:              ", 0, 2);
 
 			// get the odometry information
-			odometer.getPosition(position, new boolean[] { true, true, true });
+			odometer.getPosition(position);
 
 			// display odometry information
 			
 			t.drawString(formattedDoubleToString(position[0], 2), 3, 0);
 			t.drawString(formattedDoubleToString(position[1], 2), 3, 1);
+			t.drawString(formattedDoubleToString(position[2], 2), 3, 2);
 			
 			//Wrap angle around [0,360]
-			if(position[2]<0)
-			t.drawString(formattedDoubleToString((360+Math.toDegrees(position[2])%360), 2), 3, 2);
-			
-			if(position[2]>=0)
-			t.drawString(formattedDoubleToString((Math.toDegrees(position[2])%360), 2), 3, 2);
+//			if(position[2]<0)
+//			t.drawString(formattedDoubleToString((360+Math.toDegrees(position[2])%360), 2), 3, 2);
+//			
+//			if(position[2]>=0)
+//			t.drawString(formattedDoubleToString((Math.toDegrees(position[2])%360), 2), 3, 2);
 
 			// throttle the OdometryDisplay
 			displayEnd = System.currentTimeMillis();

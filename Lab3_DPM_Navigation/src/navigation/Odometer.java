@@ -97,14 +97,11 @@ public class Odometer extends Thread {
 	}
 
 	// accessors
-	public void getPosition(double[] position, boolean[] update) {
+	public void getPosition(double[] position) {
 		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
-			if (update[0])
 				position[0] = x;
-			if (update[1])
 				position[1] = y;
-			if (update[2])
 				position[2] = theta;
 		}
 	}
