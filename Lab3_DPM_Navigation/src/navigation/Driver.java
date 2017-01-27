@@ -16,6 +16,14 @@ public class Driver extends Thread {
 	public static double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 14.2;
 	
+	public Driver(Odometer odometer, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor){
+		this.odometer =  odometer;
+		this.leftMotor=leftMotor;
+		this.rightMotor=rightMotor;
+		navigating = false;
+	}
+	
+	
 	public void drive (double travelDist) {
 		
 			leftMotor.setSpeed(FORWARD_SPEED);
@@ -46,13 +54,13 @@ public class Driver extends Thread {
 		
 		//Calculates the angle the robot needs to head at
 		if(displacementX>0)
-			newTheta = Math.atan(displacementY/displacementX);
+			newTheta = Math.atan(displacementX/displacementY);
 		
 		else if (displacementX<0 && displacementY>0)
-			newTheta = Math.atan(displacementY/displacementX)+Math.PI;
+			newTheta = Math.atan(displacementX/displacementY)-Math.PI;
 		
 		else if (displacementX<0 && displacementY<0)
-			newTheta = Math.atan(displacementY/displacementX)-Math.PI;
+			newTheta = Math.atan(displacementX/displacementY)+Math.PI;
 			
 		deltaTheta = newTheta-currentTheta;
 		
@@ -63,7 +71,7 @@ public class Driver extends Thread {
 		else if (deltaTheta<-Math.PI)
 			return deltaTheta+(2*Math.PI);
 		
-		else if (deltaTheta>180)
+		else if (deltaTheta>Math.PI)
 			return deltaTheta-(2*Math.PI);
 		
 		else
@@ -72,10 +80,12 @@ public class Driver extends Thread {
 	
 	
 	public void travelTo (double x2, double y2){
+		double[] position = new double[3];
+		odometer.getPosition(position);
+		double x1 = position[0];
+		double y1 = position[1];
+		double currentTheta = position[2];
 		
-		double x1 = odometer.getX();
-		double y1 = odometer.getY();
-		double currentTheta = odometer.getTheta();
 		double deltaX = x1-x2;
 		double deltaY = y1-y2;
 		double turnTheta = calculateTheta(x1, x2, y1, y2,currentTheta);
@@ -90,12 +100,11 @@ public class Driver extends Thread {
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 
-		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, theta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, theta), false);
+		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), true);
+		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), false);
 	}
 	
 	boolean isNavigating(){
 		return navigating;
 	}
-		
 }

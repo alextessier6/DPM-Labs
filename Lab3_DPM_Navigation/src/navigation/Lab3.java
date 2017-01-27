@@ -10,13 +10,13 @@ import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
-import lejos.robotics.SampleProvider;
-import wallFollower.UltrasonicPoller;
+
+
 
 public class Lab3 {
 	
 	// Get port S1 used for the Ultrasonic Sensor
-	private static final Port usPort = LocalEV3.get().getPort("S1");
+//	private static final Port usPort = LocalEV3.get().getPort("S1");
 
 	// Static Resources:
 	// Left motor connected to output A
@@ -35,8 +35,8 @@ public class Lab3 {
 		
 		final TextLCD t = LocalEV3.get().getTextLCD();
 		Odometer odometer = new Odometer(leftMotor, rightMotor);
-		Driver Navigator = new Driver();
-		ObstacleAvoidance Avoider = new ObstacleAvoidance();
+		Driver Navigator = new Driver(odometer, leftMotor, rightMotor);
+//		ObstacleAvoidance Avoider = new ObstacleAvoidance();
 		OdometryDisplay odometryDisplay = new OdometryDisplay(odometer,t);
 		
 		do {
@@ -58,6 +58,7 @@ public class Lab3 {
 			
 			odometer.start();
 			odometryDisplay.start();
+			Navigator.start();
 			
 			Navigator.travelTo(60,30);
 			Navigator.travelTo(30,30);
@@ -67,18 +68,11 @@ public class Lab3 {
 		} if (buttonChoice == Button.ID_LEFT) {
 			// start the odometer, the odometry display and (possibly) the
 			// odometry correction
-			
-			@SuppressWarnings("resource")							    // Because we don't bother to close this resource
-			SensorModes usSensor = new EV3UltrasonicSensor(usPort);
-			SampleProvider usDistance = usSensor.getMode("Distance");	// usDistance provides samples from this instance
-			float[] usData = new float[usDistance.sampleSize()];		// usData is the buffer in which data are returnedusPoller = new UltrasonicPoller(usDistance, usData, p)
-		
-			usPoller = new UltrasonicPoller(usDistance, usData, p);
-			
-			Avoider.avoid();
+				
+//			ObstacleAvoidance.start();
 			odometer.start();
 			odometryDisplay.start();
-			
+			Navigator.start();
 			Navigator.travelTo(0,60);
 			Navigator.travelTo(60,0);
 
