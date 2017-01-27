@@ -21,7 +21,7 @@ public class Lab3 {
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 
 	// Constants
-	public static final double WHEEL_RADIUS = 2.1;
+	public static double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 14.2;
 
 	public static void main(String[] args) {
@@ -50,13 +50,15 @@ public class Lab3 {
 
 		if (buttonChoice == Button.ID_LEFT) {
 			
-			leftMotor.forward();
-			leftMotor.flt();
-			rightMotor.forward();
-			rightMotor.flt();
-			
+			ObstacleAvoidance();
 			odometer.start();
 			odometryDisplay.start();
+			
+			Driver.travelTo(60,30);
+			Driver.travelTo(30,30);
+			Driver.travelTo(30,60);
+			Driver.travelTo(60,0);
+			
 			
 		} else {
 			// start the odometer, the odometry display and (possibly) the
@@ -64,6 +66,9 @@ public class Lab3 {
 			
 			odometer.start();
 			odometryDisplay.start();
+			
+			Driver.travelTo(0,60);
+			Driver.travelTo(60,0);
 
 			// spawn a new Thread to avoid SquareDriver.drive() from blocking
 			(new Thread() {
