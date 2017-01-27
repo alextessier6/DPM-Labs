@@ -10,12 +10,13 @@ public class Driver {
 	private static final int ROTATE_SPEED = 150;
 	public EV3LargeRegulatedMotor leftMotor;
 	public EV3LargeRegulatedMotor rightMotor;
+	public Odometer odometer;
 	
 	public static double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 14.2;
 	
 	public static void drive(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-			double leftRadius, double rightRadius, double width) {
+			double leftRadius, double rightRadius, double width, double travelDist) {
 		// reset the motors
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) {
 			motor.stop();
@@ -35,8 +36,8 @@ public class Driver {
 			leftMotor.setSpeed(FORWARD_SPEED);
 			rightMotor.setSpeed(FORWARD_SPEED);
 
-			leftMotor.rotate(convertDistance(leftRadius, 91.44), true);
-			rightMotor.rotate(convertDistance(rightRadius, 91.44), false);
+			leftMotor.rotate(convertDistance(travelDist, 91.44), true);
+			rightMotor.rotate(convertDistance(travelDist, 91.44), false);
 
 			// turn 90 degrees clockwise
 			leftMotor.setSpeed(ROTATE_SPEED);
@@ -90,7 +91,13 @@ public class Driver {
 	
 	
 	public void travelTo (double x, double y){
+		double deltaX = odometer.getX()-x;
+		double deltaY = odometer.getY()-y;
 		
+		double travelDist = Math.sqrt(Math.pow(deltaX,2)+Math.pow(deltaY,2));
+		
+		if (odometer.getX()!=x&&odometer.getY()!=y)
+			drive(leftMotor, rightMotor, WHEEL_RADIUS, WHEEL_RADIUS, TRACK, travelDist);
 	}
 	
 	public void turnTo (double theta){
