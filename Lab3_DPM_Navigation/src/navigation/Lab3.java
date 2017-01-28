@@ -1,4 +1,4 @@
-// Lab2.java
+// Lab2.javaAVIbst
 
 package navigation;
 
@@ -29,6 +29,9 @@ public class Lab3 {
 	public static double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 14.2;
 
+	public static int travellingtox;
+	public static int travellingtoy;
+	
 	public static void main(String[] args) {
 		int buttonChoice;
 
@@ -37,6 +40,7 @@ public class Lab3 {
 		final TextLCD t = LocalEV3.get().getTextLCD();
 		Odometer odometer = new Odometer(leftMotor, rightMotor);
 		Driver Navigator = new Driver(odometer, leftMotor, rightMotor);
+		Driver avoider = new Driver(odometer, leftMotor, rightMotor);
 //		ObstacleAvoidance Avoider = new ObstacleAvoidance();
 		OdometryDisplay odometryDisplay = new OdometryDisplay(odometer,t);
 		
@@ -59,7 +63,7 @@ public class Lab3 {
 			
 			odometer.start();
 			odometryDisplay.start();
-			Navigator.start();
+			//Navigator.start();
 			
 			Navigator.travelTo(60,30);
 			Navigator.travelTo(30,30);
@@ -68,17 +72,26 @@ public class Lab3 {
 			
 		} if (buttonChoice == Button.ID_LEFT) {			
 
-			ObstacleAvoidance avoid = new ObstacleAvoidance(odometer, usSensor, leftMotor, rightMotor, Navigator);
-			
-			
-			avoid.start();
+			ObstacleAvoidance avoid = new ObstacleAvoidance(odometer, usSensor, leftMotor, rightMotor, Navigator, avoider);
+				
 		
 			odometer.start();
 			odometryDisplay.start();
 //			Navigator.start();
+			avoid.start(); 
+			travellingtox=0;   
+			travellingtoy=60;  
 			Navigator.travelTo(0,60);
+	        
+			while(ObstacleAvoidance.block==true)
+				try { Thread.sleep(1); } catch(Exception e){}
+			
+			if(Navigator.isNavigating()==false){
+				travellingtox=60;
+				travellingtoy=0; 
 			Navigator.travelTo(60,0);
-
+			}
+						
 			// spawn a new Thread to avoid Driver.drive() from blocking
 //			(new Thread() {
 //				public void run() {

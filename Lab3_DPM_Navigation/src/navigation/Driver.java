@@ -26,15 +26,17 @@ public class Driver extends Thread {
 	
 	public void drive (double travelDist) {
 		
+			if(navigating==true){
+				
+			}
+			
+			else {
 			leftMotor.setSpeed(FORWARD_SPEED);
 			rightMotor.setSpeed(FORWARD_SPEED);
-			
-			navigating = true;
 
 			leftMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), true);
 			rightMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), false);
-
-			navigating = false;
+			}
 	}
 
 	private static int convertDistance(double radius, double distance) {
@@ -60,10 +62,10 @@ public class Driver extends Thread {
 			newTheta = Math.atan(displacementX/displacementY)+Math.PI;
 		
 		else if (displacementX<0 && displacementY>0)
-			newTheta = Math.atan(displacementX/displacementY)-Math.PI;
+			newTheta = Math.atan(displacementX/displacementY);
 		
 		else if (displacementX<0 && displacementY<0)
-			newTheta = Math.atan(displacementX/displacementY)+Math.PI;
+			newTheta = Math.atan(displacementX/displacementY)-Math.PI;
 			
 		deltaTheta = newTheta-currentTheta;
 		
@@ -83,6 +85,7 @@ public class Driver extends Thread {
 	
 	
 	public void travelTo (double x2, double y2){
+		
 		double[] position = new double[3];
 		odometer.getPosition(position);
 		double x1 = position[0];
@@ -93,21 +96,39 @@ public class Driver extends Thread {
 		double deltaY = y1-y2;
 		double turnTheta = calculateTheta(x1, x2, y1, y2,currentTheta);
 		double travelDist = Math.sqrt(Math.pow(deltaX,2)+Math.pow(deltaY,2));
+	
+		if(navigating==true){
+			
+		}
 		
+		else {
 		turnTo(turnTheta);
 		drive (travelDist);
-		
+		}
 	}
 	
 	public void turnTo (double theta){
+	
+
+		if(navigating==true){
+			
+		}
+		
+		else {
+			
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
-
+		
 		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), true);
 		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, Math.toDegrees(theta)), false);
+		}
 	}
 	
 	boolean isNavigating(){
-		return navigating;
+		return navigating;	
+	}
+	
+	void setisnav(boolean isnav){
+		navigating=isnav;
 	}
 }
