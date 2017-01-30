@@ -41,9 +41,11 @@ public class Lab3 {
 		Odometer odometer = new Odometer(leftMotor, rightMotor);
 		Driver Navigator = new Driver(odometer, leftMotor, rightMotor);
 		Driver avoider = new Driver(odometer, leftMotor, rightMotor);
-//		ObstacleAvoidance Avoider = new ObstacleAvoidance();
 		OdometryDisplay odometryDisplay = new OdometryDisplay(odometer,t);
 		
+		
+		//do while loops displays program selection. User has the choice to run the block avoidance program or the 
+		//simple drive to coordinate program
 		do {
 			// clear the display
 			t.clear();
@@ -58,26 +60,29 @@ public class Lab3 {
 			buttonChoice = Button.waitForAnyPress();
 		} while (buttonChoice != Button.ID_LEFT
 				&& buttonChoice != Button.ID_RIGHT);
-
+		
+		//User chooses to run the drive to coordinate program
 		if (buttonChoice == Button.ID_RIGHT) {
 			
 			odometer.start();
 			odometryDisplay.start();
-			//Navigator.start();
 			
+			//set of coordinates to travel to
 			Navigator.travelTo(60,30);
 			Navigator.travelTo(30,30);
 			Navigator.travelTo(30,60);
 			Navigator.travelTo(60,0);
 			
-		} if (buttonChoice == Button.ID_LEFT) {			
+		} 
+		
+		//User chooses to run the block avoidance program
+		if (buttonChoice == Button.ID_LEFT) {			
 
 			ObstacleAvoidance avoid = new ObstacleAvoidance(odometer, usSensor, leftMotor, rightMotor, Navigator, avoider);
 				
 		
 			odometer.start();
 			odometryDisplay.start();
-//			Navigator.start();
 			avoid.start(); 
 			travellingtox=0;   
 			travellingtoy=60;  
