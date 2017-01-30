@@ -1,6 +1,3 @@
-/*
- * Odometer.java
- */
 
 package navigation;
 
@@ -9,7 +6,6 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Odometer extends Thread {
 	// robot position
 	private double x, y, theta;
-//	private int leftMotorTachoCount, rightMotorTachoCount;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	// odometer update period, in ms
 	private static final long ODOMETER_PERIOD = 25;
@@ -96,7 +92,7 @@ public class Odometer extends Thread {
 		}
 	}
 
-	// accessors
+	// accessors methods for position,x,y and theta
 	public void getPosition(double[] position) {
 		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
@@ -136,7 +132,7 @@ public class Odometer extends Thread {
 		return result;
 	}
 
-	// mutators
+	// mutators for position,y,y, and theta
 	public void setPosition(double[] position, boolean[] update) {
 		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
