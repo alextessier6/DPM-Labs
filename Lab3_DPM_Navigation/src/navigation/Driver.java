@@ -6,6 +6,9 @@ package navigation;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Driver extends Thread {
+	
+	//Declaration of variables and fixed speeds of forward travel and rotation
+	
 	private static final int FORWARD_SPEED = 250;
 	private static final int ROTATE_SPEED = 150;
 	public EV3LargeRegulatedMotor leftMotor;
@@ -24,6 +27,8 @@ public class Driver extends Thread {
 	}
 	
 	
+	//drive method checks if the navigating boolean is true, if true, perform nothing. 
+	//If false, robot travels a distance (travelDist)
 	public void drive (double travelDist) {
 		
 			if(navigating==true){
@@ -38,15 +43,21 @@ public class Driver extends Thread {
 			rightMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), false);
 			}
 	}
-
+	
+	
+	//convertDistance method returns distance into radians*********** not sure
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
-
+	
+	//convertsAngle method returns angle ************************* not sure
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 	
+	
+	//calculateTheta takes the current coordinates x1,y1 with the current angle and the desirable coordinates x2,y2
+	//and returns the difference in angle between the current angle and the desirable angle heading towards the desirable coordinates
 	public double calculateTheta (double x1, double x2, double y1, double y2, double currentTheta){
 	
 		double newTheta=0;
@@ -69,7 +80,7 @@ public class Driver extends Thread {
 			
 		deltaTheta = newTheta-currentTheta;
 		
-		//Make sure the angle calculated is the smallest angle necessary
+		//Insures the angle calculated is the smallest angle necessary
 		if(deltaTheta>=-Math.PI && deltaTheta<=Math.PI)
 			return deltaTheta;
 		
@@ -83,7 +94,7 @@ public class Driver extends Thread {
 			return 0;
 	}
 	
-	
+	//travelTo method receives a destination specified by x2 and y2 and sets the Mindstorm to travel to that destination
 	public void travelTo (double x2, double y2){
 		
 		double[] position = new double[3];
@@ -101,21 +112,21 @@ public class Driver extends Thread {
 			
 		}
 		
+		//else statement orients the robot towards the destinatin using the turnTo method and travels using the drive method
 		else {
 		turnTo(turnTheta);
 		drive (travelDist);
 		}
 	}
 	
-	public void turnTo (double theta){
 	
-
+	//turnTo method receives a theta angle and rotates the robot to that degree
+	public void turnTo (double theta){
+		
 		if(navigating==true){
-			
 		}
 		
 		else {
-			
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 		
@@ -124,6 +135,7 @@ public class Driver extends Thread {
 		}
 	}
 	
+	//boolean method returns navigating as true or false, used for certain for loops above
 	boolean isNavigating(){
 		return navigating;	
 	}
