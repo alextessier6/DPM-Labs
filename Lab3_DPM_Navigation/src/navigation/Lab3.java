@@ -87,7 +87,9 @@ public class Lab3 {
 			travellingtox=0;   
 			travellingtoy=60;  
 			Navigator.travelTo(0,60);
-	        
+	        	
+			//used a thread sleeper in order to prevent the avoid thread from skipping over the rest of
+			//the block of code should the robot detect a block
 			while(ObstacleAvoidance.block==true)
 				try { Thread.sleep(1); } catch(Exception e){}
 			
@@ -97,14 +99,8 @@ public class Lab3 {
 			Navigator.travelTo(60,0);
 			}
 						
-			// spawn a new Thread to avoid Driver.drive() from blocking
-//			(new Thread() {
-//				public void run() {
-//					Navigator.drive(leftMotor, rightMotor, WHEEL_RADIUS, WHEEL_RADIUS, TRACK);
-//				}
-//			}).start();
 		}
-		
+		//checks if botton is pressed to exit program and return to main menu
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);
 	}
