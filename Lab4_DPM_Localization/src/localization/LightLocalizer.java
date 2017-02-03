@@ -1,3 +1,5 @@
+package localization;
+
 import lejos.robotics.SampleProvider;
 
 public class LightLocalizer {
