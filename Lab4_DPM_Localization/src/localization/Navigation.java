@@ -14,11 +14,9 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
-	final static double DEG_ERR = 1.0, CM_ERR = 1.0;
+	final static double DEG_ERR = 0.5, CM_ERR = 1;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	public static double WHEEL_RADIUS = 2.1;
-	public static final double TRACK = 14.2;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;

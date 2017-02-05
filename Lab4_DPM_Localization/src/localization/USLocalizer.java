@@ -4,14 +4,15 @@ import lejos.robotics.SampleProvider;
 
 public class USLocalizer {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
-	public static float rotSpeed = 100;
+	public static float rotSpeed = 30;
 
 	private Odometer odo;
 	private SampleProvider usSensor;
 	public static float[] usData;
 	private LocalizationType locType;
 	private Navigation navigator;
-	private int wallDist=30;
+	private int wallDist=13;
+	private int noWall=40;
 	
 
 	public USLocalizer(Odometer odo,  SampleProvider usSensor, float[] usData, LocalizationType locType, Navigation navigator) {
@@ -28,39 +29,44 @@ public class USLocalizer {
 		double deltaTheta;
 
 		if (locType == LocalizationType.FALLING_EDGE) {
-			// rotate the robot until it sees no wall
-			rotateAwayWall(true);
-			// keep rotating until the robot sees a wall, then latch the angle
-			rotateToWall(true);
 			
-			try { Thread.sleep(5000); } catch(Exception e){}
+			
+			// rotate the robot until it sees no wall
+			rotateAwayWall(true, noWall);
+			// keep rotating until the robot sees a wall, then latch the angle
+			rotateToWall(true, wallDist);
+			
+//			try { Thread.sleep(5000); } catch(Exception e){}
 			angleA = odo.getAng();
 					
 			// switch direction and wait until it sees no wall
-			rotateAwayWall(false);
+			rotateAwayWall(false, noWall);
 
 			// keep rotating until the robot sees a wall, then latch the angle
-			rotateToWall(false);
+			rotateToWall(false, wallDist);
 			
-			try { Thread.sleep(5000); } catch(Exception e){}
+//			try { Thread.sleep(5000); } catch(Exception e){}
 			angleB = odo.getAng();
 			
 			if (angleA<angleB)
 				deltaTheta = 45 - (angleA+angleB)/2;
-//				deltaTheta=225-(360-angleB)/2-angleA;
 			else
 				deltaTheta = 225 - (angleA+angleB)/2;
+			
+
 			
 			odo.getPosition(pos);
 			// angleA is clockwise from angleB, so assume the average of the
 			// angles to the right of angleB is 45 degrees past 'north'
 			
-			navigator.turnTo(angleB+deltaTheta, true);
-			try { Thread.sleep(5000); } catch(Exception e){}
+			double newAngle = deltaTheta + pos[2];
+			
+//			try { Thread.sleep(5000); } catch(Exception e){}
 			
 //			navigator.setSpeeds(0,0);
 			// update the odometer position (example to follow:)
-			odo.setPosition(new double [] {0.0, 0.0, 0.0}, new boolean [] {true, true, true});
+			odo.setPosition(new double [] {0.0, 0.0, newAngle}, new boolean [] {true, true, true});
+			navigator.turnTo(0, true);
 		} else {
 			/*
 			 * The robot should turn until it sees the wall, then look for the
@@ -68,18 +74,33 @@ public class USLocalizer {
 			 * This is very similar to the FALLING_EDGE routine, but the robot
 			 * will face toward the wall for most of it.
 			 */
+			rotateAwayWall(true, noWall);
 			
-			while(usData[0]>=40)
-				navigator.turnTo(1,false);
+			rotateToWall(false, wallDist);
+			rotateAwayWall(false, noWall);
 			
+			angleA = odo.getAng();
 			
+			rotateToWall(true, wallDist);
+			rotateAwayWall(true, noWall);
 			
+			angleB = odo.getAng();
 			
+			if (angleA<angleB)
+				deltaTheta = 45 - (angleA+angleB)/2 + 180;
+			else
+				deltaTheta = 225 - (angleA+angleB)/2 + 180;
+			
+			odo.getPosition(pos);
+			double newAngle = deltaTheta + pos[2];
+			
+			odo.setPosition(new double [] {0.0, 0.0, newAngle}, new boolean [] {true, true, true});
+			navigator.turnTo(0, true);
 			
 		}
 	}
 	
-	private void rotateToWall(boolean right){
+	private void rotateToWall(boolean right, int dist){
 		
 		if(right==true)
 		navigator.setSpeeds(rotSpeed, -rotSpeed);
@@ -87,7 +108,7 @@ public class USLocalizer {
 		else
 		navigator.setSpeeds(-rotSpeed, rotSpeed);
 		
-		while(usData[0]>wallDist){
+		while(usData[0]>dist){
 			usData[0]=getFilteredData();
 		}
 		
@@ -95,7 +116,7 @@ public class USLocalizer {
 		
 	}
 	
-	private void rotateAwayWall(boolean right){
+	private void rotateAwayWall(boolean right, int dist){
 		
 		if(right==true)
 			navigator.setSpeeds(rotSpeed, -rotSpeed);
@@ -103,7 +124,7 @@ public class USLocalizer {
 		else
 		navigator.setSpeeds(-rotSpeed, rotSpeed);
 		
-		while(usData[0]<wallDist){
+		while(usData[0]<dist){
 			usData[0]=getFilteredData();
 		}
 		
@@ -127,13 +148,13 @@ public class USLocalizer {
 //		} else if (distance >= wallDist+40 && filterControl > FILTER_OUT) {
 //			// We have repeated large values, so there must actually be nothing
 //			// there: leave the distance alone
-//			distance = distance;
+//			return distance;
 //		}	
 //		 else {
 //			// distance went below 255: reset filter and leave
 //			// distance alone.
 //			filterControl = 0;
-//			distance = distance;
+//			return distance;
 //			
 //		}
 		return distance;
