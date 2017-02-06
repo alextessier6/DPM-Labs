@@ -13,10 +13,14 @@ package localization;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation {
-	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
-	final static double DEG_ERR = 0.5, CM_ERR = 1;
+	final static int FAST = 200, SLOW = 100, ACCELERATION = 3000;
+	final static double DEG_ERR = 1.5, CM_ERR = 2;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	public static double WHEEL_RADIUS = 2.1;
+	public static final double TRACK = 14.2;
+	private static final int FORWARD_SPEED = 250;
+	private static final int ROTATE_SPEED = 150;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -100,12 +104,32 @@ public class Navigation {
 		}
 	}
 	
-	/*
-	 * Go foward a set distance in cm
-	 */
-	public void goForward(double distance) {
-		this.travelTo(Math.cos(Math.toRadians(this.odometer.getAng())) * distance, Math.cos(Math.toRadians(this.odometer.getAng())) * distance);
+	// Turn by a given angle
+	public void turnBy(double theta){
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
+		leftMotor.rotate(convertAngle(WHEEL_RADIUS, TRACK, theta), true);
+		rightMotor.rotate(-convertAngle(WHEEL_RADIUS, TRACK, theta), false);
+		
+	}
+	
+	
+	// Go forward a set distance in cm
+	public void goForward(double travelDist) {
+		leftMotor.setSpeed(FORWARD_SPEED);
+		rightMotor.setSpeed(FORWARD_SPEED);
+		leftMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), true);
+		rightMotor.rotate(convertDistance(WHEEL_RADIUS, travelDist), false);	
+	}
+	
+	// Method given in the provided code for lab 2; converts a distance in cm to the number of rotation needed to be performed by the motor
+	private static int convertDistance(double radius, double distance) {
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
 
+	// Method given in the provided code for lab 2; converts a desired rotation (in degrees) to the number of rotation needed to be performed by the motor
+	private static int convertAngle(double radius, double width, double angle) {
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 	
 }
